@@ -1,0 +1,52 @@
+#!/usr/bin/python3.5
+# -*- coding: utf-8 -*-
+
+from bs4 import BeautifulSoup
+import sys 
+import shutil 
+import os.path 
+import io
+import subprocess
+
+
+def pdftotext(pdf):
+    
+    basename, _ = os.path.splitext(os.path.basename(pdf))
+    subprocess.call(['pdftotext', '-htmlmeta', 'enc', 'UTF-8',  
+                     pdf, os.path.join("/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/data", basename + '.html')])
+    data = parse_html(os.path.join('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/data', basename + '.html'))
+    try:
+        with io.open(os.path.join('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/data1', basename + ".txt"), 'w') as f:
+            f.write(data ['text'])
+            os.remove(os.path.join('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/data',  basename + '.html'))
+            if not os.path.exists('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/ricky/pdfs'):
+	except:
+                    os.mkdir('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/ricky/pdfs')
+                    print("OS ERROR {0}".format(err))
+                    else :
+                        shutil.copy(pdf, os.path.join('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/nlp/python course/pydf/pdfs', basename + '.pdf'))
+                        data['source'] = os.path.join('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/ricky/pdfs', basename + '.pdf')
+                        data['target'] = os.path.join('/home/brianyobra/Desktop/brian/a.i builds/a.i dev/NLP OUTCOME/data1', basename + '.txt')
+                        data['id'] = basename
+                        return data
+
+
+def parse_html(filename):
+    """Extract the Author, Title and Text from a HTML file
+    which was produced by pdftotext with the option -htmlmeta."""
+    with io.open(filename) as infile:
+        html = BeautifulSoup(infile, "html.parser", from_encoding='UTF-8')
+        d = {'text': html.pre.text}
+        if html.title is not None:
+            d['title'] = html.title.text
+        for meta in html.findAll('meta'):
+            try:
+                if meta['name'] in ('Author', 'Title'):
+                    d[meta['name'].lower()] = meta['content']
+            except KeyError:
+                continue
+        return d
+
+
+
+pdftotext("/home/brianyobra/Desktop/brian/a.i builds/a.i dev/nlp/python course/pydf/pdfs/muellner2011.pdf")
